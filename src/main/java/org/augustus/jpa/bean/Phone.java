@@ -21,11 +21,20 @@ public class Phone {
     @Column(name = "price")
     private Double price;
 
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "performance_id")
+    private Performance performance;
+
     public Phone() {
     }
 
     public Phone(Integer id, String name, Double price) {
         this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+
+    public Phone(String name, Double price) {
         this.name = name;
         this.price = price;
     }
@@ -54,12 +63,21 @@ public class Phone {
         this.price = price;
     }
 
+    public Performance getPerformance() {
+        return performance;
+    }
+
+    public void setPerformance(Performance performance) {
+        this.performance = performance;
+    }
+
     @Override
     public String toString() {
         return "Phone{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", price=" + price +
+                ", performance=" + performance +
                 '}';
     }
 }

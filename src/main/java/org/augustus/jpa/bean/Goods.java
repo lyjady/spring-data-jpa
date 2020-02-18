@@ -3,6 +3,8 @@ package org.augustus.jpa.bean;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author LinYongJin
@@ -31,6 +33,17 @@ public class Goods implements Serializable {
 
     @Column(name = "stock")
     private Integer stock;
+
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @JoinColumn(name = "braned_id")
+    private Braned braned;
+
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    // name: 中间表的名称
+    // @JoinColumn(name = "goods_id"): 当前对象在中间表的外键
+    // inverseJoinColumns = @JoinColumn(name = "user_id"): 另一侧多对多在中间表的外键
+    @JoinTable(name = "t_user_goods", joinColumns = @JoinColumn(name = "goods_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> users = new HashSet<>();
 
     public Goods() {
     }
@@ -91,6 +104,22 @@ public class Goods implements Serializable {
         this.stock = stock;
     }
 
+    public Braned getBraned() {
+        return braned;
+    }
+
+    public void setBraned(Braned braned) {
+        this.braned = braned;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+
     @Override
     public String toString() {
         return "Goods{" +
@@ -100,6 +129,7 @@ public class Goods implements Serializable {
                 ", price=" + price +
                 ", saleDate=" + saleDate +
                 ", stock=" + stock +
+                ", users=" + users +
                 '}';
     }
 }

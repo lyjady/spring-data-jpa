@@ -1,7 +1,10 @@
 package org.augustus.jpa;
 
+import org.augustus.jpa.bean.Braned;
 import org.augustus.jpa.bean.Goods;
 import org.augustus.jpa.bean.Phone;
+import org.augustus.jpa.bean.User;
+import org.augustus.jpa.repository.BranedRepository;
 import org.augustus.jpa.repository.GoodsRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +18,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,6 +31,9 @@ public class GoodsJpaTest {
 
     @Autowired
     private GoodsRepository goodsRepository;
+
+    @Autowired
+    private BranedRepository branedRepository;
 
     @Test
     public void test() {
@@ -165,5 +169,55 @@ public class GoodsJpaTest {
             return criteriaBuilder.and(root.get("id").in(fatherSubQuery));
         }));
         all.forEach(System.out::println);
+    }
+
+    @Test
+    public void saveOneToMany() {
+        Goods g1 = new Goods("filco 87", "filco", 999.0, new Date(), 12);
+        Goods g2 = new Goods("filco 1077", "filco", 1099.0, new Date(), 12);
+        Braned braned = new Braned();
+        braned.setName("filco");
+        g1.setBraned(braned);
+        g2.setBraned(braned);
+        List<Goods> goods = new ArrayList<>();
+        goods.add(g1);
+        goods.add(g2);
+        goodsRepository.saveAll(goods);
+    }
+
+    @Test
+    public void findOneToMany() {
+        Optional<Braned> byId = branedRepository.findById(8);
+        byId.ifPresent(braned -> {
+            System.out.println(braned.getName());
+            Set<Goods> goods = braned.getGoods();
+            goods.forEach(System.out::println);
+        });
+    }
+
+    @Test
+    public void saveManyToMany() {
+        Goods g1 = new Goods("ASUS ROG RTX 2080 Ti", "ASUS", 15000.0, new Date(), 12);
+        Goods g2 = new Goods("ASUS ROG RTX 2080", "ASUS", 7099.0, new Date(), 12);
+        User u1 = new User("lin");
+        User u2 = new User("wang");
+
+        g1.getUsers().add(u1);
+        g1.getUsers().add(u2);
+
+        g2.getUsers().add(u1);
+        g2.getUsers().add(u2);
+
+        goodsRepository.saveAll(Stream.of(g1, g2).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void findManyToMany() {
+        Optional<Goods> goods = goodsRepository.findById(28L);
+        goods.ifPresent(good -> {
+            System.out.println(good);
+            Set<User> users = good.getUsers();
+            users.forEach(System.out::println);
+        });
     }
 }
